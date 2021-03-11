@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<head>
+    <title>BMP280 Sensor data </title>
+    <link rel="stylesheet" href='../static/style2.css' />
+    <style>
+        body {
+            text-align: center;
+        }
+
+        #g1,
+        #g2 {
+            width: 200px;
+            height: 160px;
+            display: inline-block;
+            margin: 1em;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>BMP280 Sensor Data </h1>
+    <div id="g1"></div>
+    <div id="g2"></div>
+    <hr>
+    <h3> Last Sensors Reading: {{ templateData.time }} ==> <a href="/monitor2" class="button">REFRESH</a></h3>
+    <hr>
+    <h3> HISTORICAL DATA </h3>
+    <p> Enter range of time to be retrieved in minutes (Sample Frequency: {{ templateData.freq }} seconds)
+    <form method="POST">
+        <input name="rangeTime" value={{templateData.rangeTime}}>
+        <input type="submit">
+    </form>
+    </p>
+    <hr>
+    <img src="/plot/temp" alt="Image Placeholder" width="49%">
+    <img src="/plot/pres" alt="Image Placeholder" width="49%">
+    <p> @2020 Developed by @viktorlf</p>
+
+    <script src="../static/raphael-2.1.4.min.js"></script>
+    <script src="../static/justgage.js"></script>
+    <script>
+        var g1, g2;
+        document.addEventListener("DOMContentLoaded", function (event) {
+            g1 = new JustGage({
+                id: "g1",
+                value: {{ templateData.temp }},
+            valueFontColor: "yellow",
+            min: -40,
+            max: 85,
+            title: "Temperature",
+            label: "Celcius"
+            });
+        g2 = new JustGage({
+            id: "g2",
+            value: {{ templateData.pres }},
+            valueFontColor: "yellow",
+            min: 300,
+            max: 1100,
+            title: "Pressure",
+            label: "hPa"
+            });
+        });
+    </script>
+</body>
+
+</html>
