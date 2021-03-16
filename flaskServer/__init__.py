@@ -11,7 +11,8 @@ from datetime import datetime
 #from flask import request
 
 
-DATABASE = '/var/www/flaskServer/flaskServer/database/measurements.db'
+#DATABASE = '/var/www/flaskServer/flaskServer/database/measurements.db'
+DATABASE = '/home/victor/Documents/CBPF/obras_raras/flaskServer/flaskServer/database/measurements.db'
 
 app = Flask(__name__)
 
@@ -94,7 +95,7 @@ def index():
 	return render_template('monitor.html', templateData=templateData)
 
 
-@app.route('/monitor2')
+@app.route('/monitor2', methods=['GET'])
 def index2():	
 	time, temp, pres = getData()
 	templateData = {
@@ -132,6 +133,20 @@ def my_form_post():
 	}
 
     return render_template('monitor2.html', templateData=templateData)
+
+@app.route('/monitor3')
+def index3():	
+	time, temp, pres = getData()
+	templateData = {
+		'time': time,
+		'temp': temp,
+		'pres': pres,
+        #'numSamples' : numSamples
+        'freq' : freqSamples,
+        'rangeTime'	: rangeTime
+	}
+
+	return render_template('monitor3.html', templateData=templateData)
 
 
 @app.route('/plot/temp')
@@ -205,4 +220,4 @@ def postJsonHandler():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0', port=8090)

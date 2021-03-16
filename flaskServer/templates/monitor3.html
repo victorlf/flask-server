@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMP280</title>
+
+    <link rel="stylesheet" href="../static/style3.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,400;0,700;1,100;1,400&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1 id="logo">BMP280</h1>
+    </header>
+
+    <main class="container">
+        <section id="sensors">
+            <h2>Sensors</h2>
+
+            <div class="card">
+                <!-- <h3>Sensor BMP280</h3> -->
+                <div class="title">
+                    <h3>01
+                        <i class="arrow down" onclick="toggle(1)"></i>
+                        <!-- <i class="arrow up" onclick="toggle()"></i> -->
+
+                    </h3>
+                </div>
+                <div id="temp1" class="gauge"></div>
+                <div id="pres1" class="gauge"></div>
+                <div class="graphs">
+                    <p>Last Reading: {{ templateData.time }}</p>
+                    <img src="/plot/temp" alt="Image Placeholder" width="49%">
+                    <img src="/plot/pres" alt="Image Placeholder" width="49%">
+                </div>
+            </div>
+
+            <div class="card">
+                <!-- <h3>Sensor BMP280</h3> -->
+                <div class="title">
+                    <h3>02
+                        <i class="arrow down" onclick="toggle(2)"></i>
+                        <!-- <i class="arrow up" onclick="toggle()"></i> -->
+
+                    </h3>
+                </div>
+                <div id="temp2" class="gauge"></div>
+                <div id="pres2" class="gauge"></div>
+                <div class="graphs">
+                    <img src="temp.png" alt="Image Placeholder" width="49%">
+                    <img src="pres.png" alt="Image Placeholder" width="49%">
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>BMP280</p>
+    </footer>
+
+    <script src="../static/raphael-2.1.4.min.js"></script>
+    <script src="../static/justgage.js"></script>
+    <script>
+        var temp1, pres1, temp2, pres2;
+        document.addEventListener("DOMContentLoaded", function (event) {
+            temp1 = new JustGage({
+                id: "temp1",
+                value: {{ templateData.temp }},
+            valueFontColor: "white",
+            min: -40,
+            max: 85,
+            title: "Temperature",
+            label: "Celcius"
+            });
+        pres1 = new JustGage({
+            id: "pres1",
+            value: {{ templateData.pres }},
+            valueFontColor: "white",
+            min: 300,
+            max: 1100,
+            title: "Pressure",
+            label: "hPa"
+            });
+        temp2 = new JustGage({
+            id: "temp2",
+            value: 34,
+            valueFontColor: "white",
+            min: -40,
+            max: 85,
+            title: "Temperature",
+            label: "Celcius"
+        });
+        pres2 = new JustGage({
+            id: "pres2",
+            value: 1010,
+            valueFontColor: "white",
+            min: 300,
+            max: 1100,
+            title: "Pressure",
+            label: "hPa"
+        });
+        });
+        function toggle(i) {
+            var x;
+            if (i === 1) {
+                x = document.getElementsByClassName("graphs")[0];
+            }
+            else {
+                x = document.getElementsByClassName("graphs")[1];
+            }
+
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+        }
+    </script>
+</body>
+
+</html>
