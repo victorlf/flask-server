@@ -24,20 +24,25 @@ def makeCon():
     return curs
 
 # Retrieve data from database
-def getData():
+def getData(sensor=1):
     curs = makeCon()
-    for row in curs.execute("SELECT * FROM temp_pres ORDER BY timestamp DESC LIMIT 1"):
+    sql = f'SELECT * FROM temp_pres WHERE sensor={sensor} ORDER BY timestamp DESC LIMIT 1'
+    for row in curs.execute(sql):
         time = str(row[4])
         temp = row[2]
         pres = row[3]
+        sensor = row[1]
     curs.close()
 
-    return time, temp, pres
+    return time, temp, pres, sensor
 
 
-def getHistData (numSamples):
+def getHistData (numSamples, sensor=1):
     curs = makeCon()
-    curs.execute("SELECT * FROM temp_pres ORDER BY timestamp DESC LIMIT "+str(numSamples))
+    sql = f'SELECT * FROM temp_pres WHERE sensor={sensor} ORDER BY timestamp DESC LIMIT '
+    sql = sql + str(numSamples)
+    #curs.execute("SELECT * FROM temp_pres ORDER BY timestamp DESC LIMIT "+str(numSamples))
+    curs.execute(sql)
     data = curs.fetchall()
     dates = []
     temps = []
@@ -51,17 +56,22 @@ def getHistData (numSamples):
     return dates, temps, press
 
 
-def maxRowsTable():
+def maxRowsTable(sensor):
     curs = makeCon()
-    for row in curs.execute("select COUNT(temperature) from  temp_pres"):
+    for row in curs.execute(f"select COUNT(temperature) from  temp_pres  WHERE sensor={sensor}"):
         maxNumberRows=row[0]
     curs.close()
 
-    return maxNumberRows
+    numSamples = maxNumberRows
+
+    if (numSamples > 101):
+        numSamples = 100
+
+    return numSamples
 
 # Get sample frequency in minutes
 def freqSample():
-    times, temps, pres = getHistData (2)
+    times, temps, pres = getHistData (numSamples=2)
     fmt = '%Y-%m-%d %H:%M:%S'
     tstamp0 = datetime.strptime(times[0], fmt)
     tstamp1 = datetime.strptime(times[1], fmt)
@@ -71,9 +81,8 @@ def freqSample():
 
 # Define and initialize global variables
 global numSamples
-numSamples = maxRowsTable()
-if (numSamples > 101):
-    numSamples = 100
+numSamples = maxRowsTable(1)
+
 
 global freqSamples
 freqSamples = freqSample()
@@ -85,7 +94,7 @@ rangeTime = 100
 
 @app.route('/monitor')
 def index():	
-	time, temp, pres = getData()
+	time, temp, pres, sensor = getData()
 	templateData = {
 		'time': time,
 		'temp': temp,
@@ -97,14 +106,14 @@ def index():
 
 @app.route('/monitor2', methods=['GET'])
 def index2():	
-	time, temp, pres = getData()
+	time, temp, pres, sensor = getData()
 	templateData = {
 		'time': time,
 		'temp': temp,
 		'pres': pres,
         #'numSamples' : numSamples
         'freq' : freqSamples,
-        'rangeTime'	: rangeTime
+        'rangeTime'	: rangeTime,
 	}
 
 	return render_template('monitor2.html', templateData=templateData)
@@ -136,22 +145,35 @@ def my_form_post():
 
 @app.route('/monitor3')
 def index3():	
-	time, temp, pres = getData()
-	templateData = {
+	time, temp, pres, sensor = getData()
+	templateData1 = {
 		'time': time,
 		'temp': temp,
 		'pres': pres,
         #'numSamples' : numSamples
         'freq' : freqSamples,
-        'rangeTime'	: rangeTime
+        'rangeTime'	: rangeTime,
+        'sensor' : sensor
 	}
 
-	return render_template('monitor3.html', templateData=templateData)
+	time, temp, pres, sensor = getData(2)
+	templateData2 = {
+		'time': time,
+		'temp': temp,
+		'pres': pres,
+        #'numSamples' : numSamples
+        'freq' : freqSamples,
+        'rangeTime'	: rangeTime,
+        'sensor' : sensor
+	}
+	
+	return render_template('monitor3.html', templateData1=templateData1, templateData2=templateData2)
 
 
-@app.route('/plot/temp')
-def plot_temp():
-	times, temps, press = getHistData(numSamples)
+@app.route('/plot/temp/<sensor>')
+def plot_temp(sensor):
+	numSamples = maxRowsTable(sensor)
+	times, temps, press = getHistData(numSamples=numSamples, sensor=sensor)
 	ys = temps
 	fig = Figure()
 	axis = fig.add_subplot(1, 1, 1)
@@ -169,9 +191,10 @@ def plot_temp():
 	return response
 
 
-@app.route('/plot/pres')
-def plot_pres():
-	times, temps, press = getHistData(numSamples)
+@app.route('/plot/pres/<sensor>')
+def plot_pres(sensor):
+	numSamples = maxRowsTable(sensor)
+	times, temps, press = getHistData(numSamples=numSamples, sensor=sensor)
 	ys = press
 	fig = Figure()
 	axis = fig.add_subplot(1, 1, 1)

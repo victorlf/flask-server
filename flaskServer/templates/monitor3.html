@@ -25,7 +25,7 @@
             <div class="card">
                 <!-- <h3>Sensor BMP280</h3> -->
                 <div class="title">
-                    <h3>01
+                    <h3>0{{ templateData1.sensor }}
                         <i class="arrow down" onclick="toggle(1)"></i>
                         <!-- <i class="arrow up" onclick="toggle()"></i> -->
 
@@ -34,16 +34,16 @@
                 <div id="temp1" class="gauge"></div>
                 <div id="pres1" class="gauge"></div>
                 <div class="graphs">
-                    <p>Last Reading: {{ templateData.time }}</p>
-                    <img src="/plot/temp" alt="Image Placeholder" width="49%">
-                    <img src="/plot/pres" alt="Image Placeholder" width="49%">
+                    <p>Last Reading: {{ templateData1.time }}</p>
+                    <img src="/plot/temp/{{ templateData1.sensor }}" alt="Image Placeholder" width="49%">
+                    <img src="/plot/pres/{{ templateData1.sensor }}" alt="Image Placeholder" width="49%">
                 </div>
             </div>
 
             <div class="card">
                 <!-- <h3>Sensor BMP280</h3> -->
                 <div class="title">
-                    <h3>02
+                    <h3>0{{ templateData2.sensor }}
                         <i class="arrow down" onclick="toggle(2)"></i>
                         <!-- <i class="arrow up" onclick="toggle()"></i> -->
 
@@ -52,8 +52,9 @@
                 <div id="temp2" class="gauge"></div>
                 <div id="pres2" class="gauge"></div>
                 <div class="graphs">
-                    <img src="temp.png" alt="Image Placeholder" width="49%">
-                    <img src="pres.png" alt="Image Placeholder" width="49%">
+                    <p>Last Reading: {{ templateData2.time }}</p>
+                    <img src="/plot/temp/{{ templateData2.sensor }}" alt="Image Placeholder" width="49%">
+                    <img src="/plot/pres/{{ templateData2.sensor }}" alt="Image Placeholder" width="49%">
                 </div>
             </div>
 
@@ -68,43 +69,47 @@
     <script src="../static/justgage.js"></script>
     <script>
         var temp1, pres1, temp2, pres2;
+
         document.addEventListener("DOMContentLoaded", function (event) {
             temp1 = new JustGage({
                 id: "temp1",
-                value: {{ templateData.temp }},
+                value: {{ templateData1.temp }},
             valueFontColor: "white",
             min: -40,
             max: 85,
             title: "Temperature",
             label: "Celcius"
             });
+
         pres1 = new JustGage({
             id: "pres1",
-            value: {{ templateData.pres }},
+            value: {{ templateData1.pres }},
             valueFontColor: "white",
             min: 300,
             max: 1100,
             title: "Pressure",
             label: "hPa"
             });
+
         temp2 = new JustGage({
             id: "temp2",
-            value: 34,
+            value: {{ templateData2.temp }},
             valueFontColor: "white",
             min: -40,
             max: 85,
             title: "Temperature",
             label: "Celcius"
-        });
+            });
+
         pres2 = new JustGage({
             id: "pres2",
-            value: 1010,
+            value: {{ templateData2.pres }},
             valueFontColor: "white",
             min: 300,
             max: 1100,
             title: "Pressure",
             label: "hPa"
-        });
+            });
         });
         function toggle(i) {
             var x;
