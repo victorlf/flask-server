@@ -2,6 +2,7 @@
 
 import sqlite3
 import requests
+import json
 from sqlite3 import Error
 from flask import Flask, request, render_template, send_file, make_response
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -90,6 +91,20 @@ freqSamples = freqSample()
 
 global rangeTime
 rangeTime = 100
+
+
+@app.route('/test')
+def test():
+    sensor = 2
+    numSamples = maxRowsTable(sensor)
+    times, temps, press = getHistData(numSamples=numSamples, sensor=sensor)
+    ys = temps
+    print(ys)
+    xs = list(range(numSamples))
+    print(xs)
+
+
+    return render_template('test.html', xs=xs, ys=ys)
 
 
 @app.route('/monitor')
