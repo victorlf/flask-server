@@ -1,2 +1,3 @@
 flaskServer/__pycache__/__init__.cpython-37.pyc
 flaskServer/database/measurements.db
+flaskServer/database/measurementsFromServer.db

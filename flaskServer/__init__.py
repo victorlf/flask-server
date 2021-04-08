@@ -4,7 +4,7 @@ import sqlite3
 import requests
 import json
 from sqlite3 import Error
-from flask import Flask, request, render_template, send_file, make_response
+from flask import Flask, request, render_template, send_file, make_response, jsonify
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import io
@@ -13,7 +13,8 @@ from datetime import datetime
 
 
 #DATABASE = '/var/www/flaskServer/flaskServer/database/measurements.db'
-DATABASE = '/home/victor/Documents/CBPF/obras_raras/flaskServer/flaskServer/database/measurements.db'
+#DATABASE = '/home/victor/Documents/CBPF/obras_raras/flaskServer/flaskServer/database/measurements.db'
+DATABASE = '/home/victor/Documents/CBPF/obras_raras/flaskServer/flaskServer/database/measurementsFromServer.db'
 
 app = Flask(__name__)
 
@@ -92,10 +93,22 @@ freqSamples = freqSample()
 global rangeTime
 rangeTime = 100
 
+@app.after_request
+def after_request(response):
+    header = response.headers
+    header['Access-Control-Allow-Origin'] = '*'
+    header['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    header['Access-Control-Allow-Methods'] = 'OPTIONS, HEAD, GET, POST, DELETE, PUT'
+    return response
 
-@app.route('/test')
-def test():
-    sensor = 2
+@app.route('/get_one_value_each/<sensor>')
+def get_one_value_each(sensor):
+    time, temp, pres, sensor = getData(sensor)
+    return jsonify({"temp": temp, "pres": pres, "time": time})
+
+@app.route('/get_array_values/temp/<sensor>')
+def get_array_values_temp(sensor):
+    #sensor = 2
     numSamples = maxRowsTable(sensor)
     times, temps, press = getHistData(numSamples=numSamples, sensor=sensor)
     ys = temps
@@ -104,7 +117,22 @@ def test():
     print(xs)
 
 
-    return render_template('test.html', xs=xs, ys=ys)
+    #return render_template('test.html', xs=xs, ys=ys)
+    return jsonify({"temps": temps, "numSamples": xs})
+
+@app.route('/get_array_values/pres/<sensor>')
+def get_array_values_pres(sensor):
+    #sensor = 2
+    numSamples = maxRowsTable(sensor)
+    times, temps, press = getHistData(numSamples=numSamples, sensor=sensor)
+    ys = press
+    print(ys)
+    xs = list(range(numSamples))
+    print(xs)
+
+
+    #return render_template('test.html', xs=xs, ys=ys)
+    return jsonify({"temps": press, "numSamples": xs})
 
 
 @app.route('/monitor')
@@ -258,4 +286,5 @@ def postJsonHandler():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8090)
+    #app.run(host='0.0.0.0', port=8090)
+    app.run(host='0.0.0.0', port=5000)
