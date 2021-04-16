@@ -13,8 +13,8 @@ from datetime import datetime
 
 
 #DATABASE = '/var/www/flaskServer/flaskServer/database/measurements.db'
-#DATABASE = '/home/victor/Documents/CBPF/obras_raras/flaskServer/flaskServer/database/measurements.db'
-DATABASE = '/home/victor/Documents/CBPF/obras_raras/flaskServer/flaskServer/database/measurementsFromServer.db'
+DATABASE = '/home/victor/Documents/CBPF/obras_raras/flaskServer/flaskServer/database/measurements.db'
+#DATABASE = '/home/victor/Documents/CBPF/obras_raras/flaskServer/flaskServer/database/measurementsFromServer.db'
 
 app = Flask(__name__)
 
@@ -28,20 +28,24 @@ def makeCon():
 # Retrieve data from database
 def getData(sensor=1):
     curs = makeCon()
-    sql = f'SELECT * FROM temp_pres WHERE sensor={sensor} ORDER BY timestamp DESC LIMIT 1'
+    #sql = f'SELECT * FROM temp_pres WHERE sensor={sensor} ORDER BY timestamp DESC LIMIT 1'
+    sql = f'SELECT * FROM temp_pres_battery WHERE sensor={sensor} ORDER BY timestamp DESC LIMIT 1'
     for row in curs.execute(sql):
-        time = str(row[4])
+        #time = str(row[4])
+        battery = row[4]
+        time = str(row[5])
         temp = row[2]
         pres = row[3]
         sensor = row[1]
     curs.close()
 
-    return time, temp, pres, sensor
+    return time, battery, temp, pres, sensor
 
 
 def getHistData (numSamples, sensor=1):
     curs = makeCon()
-    sql = f'SELECT * FROM temp_pres WHERE sensor={sensor} ORDER BY timestamp DESC LIMIT '
+    #sql = f'SELECT * FROM temp_pres WHERE sensor={sensor} ORDER BY timestamp DESC LIMIT '
+    sql = f'SELECT * FROM temp_pres_battery WHERE sensor={sensor} ORDER BY timestamp DESC LIMIT '
     sql = sql + str(numSamples)
     #curs.execute("SELECT * FROM temp_pres ORDER BY timestamp DESC LIMIT "+str(numSamples))
     curs.execute(sql)
@@ -50,7 +54,8 @@ def getHistData (numSamples, sensor=1):
     temps = []
     press = []
     for row in reversed(data):
-        dates.append(row[4])
+        #dates.append(row[4])
+        dates.append(row[5])
         temps.append(row[2])
         press.append(row[3])
     curs.close()
@@ -60,7 +65,8 @@ def getHistData (numSamples, sensor=1):
 
 def maxRowsTable(sensor):
     curs = makeCon()
-    for row in curs.execute(f"select COUNT(temperature) from  temp_pres  WHERE sensor={sensor}"):
+    #for row in curs.execute(f"select COUNT(temperature) from  temp_pres  WHERE sensor={sensor}"):
+    for row in curs.execute(f"select COUNT(temperature) from  temp_pres_battery  WHERE sensor={sensor}"):
         maxNumberRows=row[0]
     curs.close()
 
@@ -103,8 +109,8 @@ def after_request(response):
 
 @app.route('/get_one_value_each/<sensor>')
 def get_one_value_each(sensor):
-    time, temp, pres, sensor = getData(sensor)
-    return jsonify({"temp": temp, "pres": pres, "time": time})
+    time, battery, temp, pres, sensor = getData(sensor)
+    return jsonify({"temp": temp, "pres": pres, "battery": battery, "time": time})
 
 @app.route('/get_array_values/temp/<sensor>')
 def get_array_values_temp(sensor):
@@ -260,28 +266,35 @@ def postJsonHandler():
     print (request.is_json)
     content = request.get_json()
     print (content)
-    print('JSON posted')
+    #print('JSON posted')
 
     try:
         sensor = content['sensor']
         temp = content['temperature']
         pres = content['pressure']
+        volt = content['voltage']
+        #print(float(volt))
+        battery = int((float(volt) / 5) * 100)
+        #battery = 90
 
         print(sensor)
 
         #con = sqlite3.connect('database/temperature.db')
         with sqlite3.connect(DATABASE) as con:
             cur = con.cursor()
-            cur.execute("INSERT INTO temp_pres (sensor, temperature, pressure, timestamp) Values (?, ?, ?, datetime('now', 'localtime'))", (sensor, temp, pres))
+            #cur.execute("INSERT INTO temp_pres (sensor, temperature, pressure, timestamp) Values (?, ?, ?, datetime('now', 'localtime'))", (sensor, temp, pres))
+            cur.execute("INSERT INTO temp_pres_battery (sensor, temperature, pressure, battery, timestamp) Values (?, ?, ?, ?, datetime('now', 'localtime'))", (sensor, temp, pres, battery))
 
             con.commit()
             con.close()
-        return "Record successfully added"
+        print("Record successfully added")
+        return True
     except:
         #con.rollback()
+        print("error in insert operation")
         return "error in insert operation"
 
-    print(200)
+    #print(200)
 
 
 
