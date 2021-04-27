@@ -126,6 +126,78 @@ def get_array_values_temp(sensor):
     #return render_template('test.html', xs=xs, ys=ys)
     return jsonify({"temps": temps, "numSamples": xs})
 
+@app.route('/get_array_values2/temp/<sensor>')
+def get_array_values_temp2(sensor):
+    #sensor = 2
+    numSamples = maxRowsTable(sensor)
+    times, temps, press = getHistData(numSamples=numSamples, sensor=sensor)
+    ys = temps
+    print(ys)
+    xs = list(range(numSamples))
+    print(xs)
+
+    l = []
+    for index,num in enumerate(xs):
+        l.append({"Temperature": temps[index], "Sample": num})
+
+    print(l)
+
+    #return render_template('test.html', xs=xs, ys=ys)
+    #return jsonify({"temps": temps, "numSamples": xs})
+    return jsonify(l)
+
+
+@app.route('/get_array_values2/pres/<sensor>')
+def get_array_values_pres2(sensor):
+    #sensor = 2
+    numSamples = maxRowsTable(sensor)
+    times, temps, press = getHistData(numSamples=numSamples, sensor=sensor)
+    ys = press
+    print(ys)
+    xs = list(range(numSamples))
+    print(xs)
+
+    l = []
+    for index,num in enumerate(xs):
+        l.append({"Pressure": press[index], "Sample": num})
+
+    print(l)
+
+    #return render_template('test.html', xs=xs, ys=ys)
+    #return jsonify({"temps": temps, "numSamples": xs})
+    return jsonify(l)
+
+
+@app.route('/get_array_values_two_sensors/temp')
+def get_array_values_temp_two_sensors():
+    #sensor 1
+    numSamples = maxRowsTable(1)
+    times, temps, press = getHistData(numSamples=numSamples, sensor=1)
+    ys = temps
+    print(ys)
+    xs = list(range(numSamples))
+    print(xs)
+    l = []
+    for index,num in enumerate(xs):
+        l.append({"Temperature": temps[index], "Sample": num, "Sensor": 1})
+
+    #sensor 2
+    numSamples = maxRowsTable(2)
+    times, temps, press = getHistData(numSamples=numSamples, sensor=2)
+    ys = temps
+    print(ys)
+    xs = list(range(numSamples))
+    print(xs)
+    #l2 = []
+    for index,num in enumerate(xs):
+        l.append({"Temperature": temps[index], "Sample": num, "Sensor": 2})
+
+
+    #return render_template('test.html', xs=xs, ys=ys)
+    #return jsonify({"temps": temps, "numSamples": xs})
+    return jsonify(l)
+
+
 @app.route('/get_array_values/pres/<sensor>')
 def get_array_values_pres(sensor):
     #sensor = 2
